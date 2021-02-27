@@ -1583,9 +1583,6 @@ parts:
       apt-get install apt-transport-https
       echo 'deb https://artifacts.elastic.co/packages/7.x/apt stable main' > /etc/apt/sources.list.d/elastic-7.x.list
       echo 'deb http://ppa.launchpad.net/telegraf-devs/ppa/ubuntu bionic main' > /etc/apt/sources.list.d/telegraf.x.list
-      # this needs to be re-worked in order to be built in-place
-      echo 'deb http://ppa.launchpad.net/nikolay.vinogradov/nrpe-root/ubuntu bionic main' > /etc/apt/sources.list.d/nrpe-root.list
-      sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F767C80E0FC5C835
       apt-get update --allow-unauthenticated
 
   #lma-configs:
