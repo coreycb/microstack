@@ -4,6 +4,9 @@ state_path = {{ snap_common }}/lib
 # Log to systemd journal
 use_journal = True
 
+log_file = {{ snap_common }}/log/horizon.log
+debug = {{ logging_debug }}
+
 [oslo_concurrency]
 # Oslo Concurrency lock path
 lock_path = {{ snap_common }}/lock

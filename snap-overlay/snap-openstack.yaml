@@ -110,6 +110,7 @@ setup:
     dashboard_port: 'config.network.ports.dashboard'
     mysql_port: 'config.network.ports.mysql'
     rabbit_port: 'config.network.ports.rabbit'
+    logging_debug: 'config.logging.debug'
     logging_tag: 'config.logging.logging.tag'
     logging_host: 'config.logging.host'
     monitoring_tag: 'config.monitoring.tag'

@@ -4,6 +4,10 @@ state_path = {{ snap_common }}/lib
 # Log to systemd journal
 use_journal = True
 
+log_file = {{ snap_common }}/log/neutron.log
+debug = {{ logging_debug }}
+
+
 {% if dns_domain %}
 dns_domain = {{ dns_domain }}
 {% endif %}

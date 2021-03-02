@@ -12,6 +12,9 @@ use_journal = True
 host = {{ node_fqdn }}
 my_ip = {{ compute_ip }}
 
+log_file = {{ snap_common }}/log/nova.log
+debug = {{ logging_debug }}
+
 [workarounds]
 disable_rootwrap = True
 

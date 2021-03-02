@@ -55,6 +55,7 @@ def _get_default_config():
         'config.logging.custom-config': f'{snap_common}/etc/filebeat'
                                         '/filebeat-microstack.yaml',
         'config.logging.datatag': '',
+        'config.logging.debug': False,
         'config.logging.host': 'localhost:5044',
         'config.services.extra.enabled': False,
         'config.services.extra.filebeat': False,
