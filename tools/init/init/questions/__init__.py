@@ -26,14 +26,16 @@ limitations under the License.
 import json
 from time import sleep
 from os import path
+from pathlib import Path
+from shutil import copyfile
 
 from init import shell
 from init.shell import (check, call, check_output, sql, nc_wait, log_wait,
                         restart, download, disable, enable)
 from init.config import Env, log
-from init import cluster_tls
+from init import tls
 from init.questions.question import Question
-from init.questions import clustering, network, uninstall  # noqa F401
+from init.questions import clustering, network, tls, uninstall  # noqa F401
 
 
 _env = Env().get_env()
@@ -102,7 +104,13 @@ class Clustering(Question):
                 'config.services.hypervisor': 'true',
             })
             # Generate a self-signed certificate for the clustering service.
-            cluster_tls.generate_selfsigned()
+            cert_path, key_path = (
+                Path(shell.config_get('config.cluster.tls-cert-path')),
+                Path(shell.config_get('config.cluster.tls-key-path')),
+            )
+            tls.generate_self_signed(
+                cert_path, key_path,
+                fingerprint_config='config.cluster.fingerprint')
 
         # Write templates
         check('snap-openstack', 'setup')
@@ -288,6 +296,37 @@ class DashboardAccess(ConfigQuestion):
             hosts=answer))
 
 
+class TlsCertificates(Question):
+
+    _type = 'boolean'
+    _question = 'Do you wish to generate a self-signed certificate for TLS?'
+    config_key = 'config.tls.generate-self-signed'
+
+    def yes(self, answer: str) -> None:
+        role = shell.config_get('config.cluster.role')
+
+        if role == 'control':
+            log.info('Generating TLS Certificate and Key')
+            cert_path, key_path = (
+                Path(shell.config_get('config.tls.cert-path')),
+                Path(shell.config_get('config.tls.key-path')),
+            )
+            tls.generate_self_signed(cert_path, key_path,
+                                     ip=_env['control_ip'])
+            copyfile(Path(shell.config_get('config.tls.cert-path')),
+                     Path(shell.config_get('config.tls.cacert-path')))
+            restart('nginx')
+
+        elif role == 'compute':
+            log.warning('TLS certificate generation can only be performed on '
+                        'control node')
+
+    def no(self, answer: str):
+        log.info('TLS certificates must be provided: config.tls.cacert-path, '
+                 'config.tls.cert-path, and config.tls.key-path.')
+        restart('nginx')
+
+
 class RabbitMq(Question):
     """Wait for Rabbit to start, then setup permissions."""
 
@@ -362,7 +401,7 @@ class DatabaseSetup(Question):
         if call('openstack', 'user', 'show', 'admin'):
             return
 
-        bootstrap_url = 'http://{control_ip}:5000/v3/'.format(**_env)
+        bootstrap_url = 'https://{control_ip}:5000/v3/'.format(**_env)
 
         check('snap-openstack', 'launch', 'keystone-manage', 'bootstrap',
               '--bootstrap-password', _env['keystone_password'],
@@ -401,7 +440,7 @@ class DatabaseSetup(Question):
         log.info('Creating service project ...')
         if not call('openstack', 'project', 'show', 'service'):
             check('openstack', 'project', 'create', '--domain',
-                  'default', '--description', 'Service Project',
+                  'default', '--description', '"Service Project"',
                   'service')
 
         log.info('Keystone configured!')
@@ -536,7 +575,7 @@ class PlacementSetup(Question):
             for endpoint in ['public', 'internal', 'admin']:
                 call('openstack', 'endpoint', 'create', '--region',
                      'microstack', 'placement', endpoint,
-                     'http://{control_ip}:8778'.format(**_env))
+                     'https://{control_ip}:8778'.format(**_env))
 
         log.info('Running Placement DB migrations...')
         check('snap-openstack', 'launch', 'placement-manage', 'db', 'sync')
@@ -612,6 +651,7 @@ class NovaControlPlane(Question):
 
         enable('nova-api')
         restart('nova-compute')
+        restart('nginx')
 
         for service in [
                 'nova-api-metadata',
@@ -630,7 +670,7 @@ class NovaControlPlane(Question):
             for endpoint in ['public', 'internal', 'admin']:
                 call('openstack', 'endpoint', 'create', '--region',
                      'microstack', 'compute', endpoint,
-                     'http://{control_ip}:8774/v2.1'.format(**_env))
+                     'https://{control_ip}:8774/v2.1'.format(**_env))
 
         log.info('Creating default flavors...')
 
@@ -682,7 +722,7 @@ class CinderSetup(Question):
                     check(
                             'openstack', 'endpoint', 'create', '--region',
                             'microstack', f'volume{api_version}', endpoint,
-                            f'http://{control_ip}:8776/{api_version}/'
+                            f'https://{control_ip}:8776/{api_version}/'
                             '$(project_id)s'
                     )
         log.info('Running Cinder DB migrations...')
@@ -754,12 +794,13 @@ class NeutronControlPlane(Question):
             for endpoint in ['public', 'internal', 'admin']:
                 call('openstack', 'endpoint', 'create', '--region',
                      'microstack', 'network', endpoint,
-                     'http://{control_ip}:9696'.format(**_env))
+                     'https://{control_ip}:9696'.format(**_env))
 
         check('snap-openstack', 'launch', 'neutron-db-manage', 'upgrade',
               'head')
         enable('neutron-api')
         enable('neutron-ovn-metadata-agent')
+        restart('nginx')
 
         nc_wait(_env['control_ip'], '9696')
 
@@ -864,10 +905,11 @@ class GlanceSetup(Question):
             for endpoint in ['internal', 'admin', 'public']:
                 check('openstack', 'endpoint', 'create', '--region',
                       'microstack', 'image', endpoint,
-                      'http://{compute_ip}:9292'.format(**_env))
+                      'https://{compute_ip}:9292'.format(**_env))
 
         check('snap-openstack', 'launch', 'glance-manage', 'db_sync')
         enable('glance-api')
+        restart('nginx')
 
         nc_wait(_env['compute_ip'], '9292')
 

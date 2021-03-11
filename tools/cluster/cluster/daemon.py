@@ -10,6 +10,7 @@ from werkzeug.exceptions import BadRequest
 
 
 from cluster.shell import check_output
+from cluster.shell import config_get
 
 from keystoneauth1.identity import v3
 from keystoneauth1 import session
@@ -153,8 +154,20 @@ def handle_unexpected_error(error):
 def join_info():
     """Generate the configuration information to return to a client."""
     # TODO: be selective about what we return. For now, we just get everything.
+    info = {}
     config = json.loads(check_output('snapctl', 'get', 'config'))
-    info = {'config': config}
+    info['config'] = config
+
+    # Add the controller's TLS certificate data
+    tls_path_map = {
+        'cacert-path': 'tls_cacert',
+        'cert-path': 'tls_cert',
+        'key-path': 'tls_key',
+    }
+    for tls_config, tls_file in tls_path_map.items():
+        with open(config_get('config.tls.{}'.format(tls_config)), "r") as f:
+            info[tls_file] = f.read()
+
     return info
 
 
@@ -210,8 +223,7 @@ def join():
                          ' authentication data in the request.')
             return MissingAuthDataInRequest()
 
-        # TODO: handle https here when TLS termination support is added.
-        keystone_base_url = 'http://localhost:5000/v3'
+        keystone_base_url = 'https://localhost:5000/v3'
 
         # In an unlikely event of failing to construct an auth object
         # treat it as if invalid data got passed in terms of responding
@@ -231,7 +243,18 @@ def join():
         try:
             # Use the auth object with the app credential to create a session
             # which the Keystone client will use.
-            sess = session.Session(auth=auth)
+            if config_get('config.tls.generate-self-signed'):
+                # TODO(coreycb): Can we verify cert if self-signed certs
+                # include a ca-cert and cert?
+                sess = session.Session(
+                    auth=auth,
+                    verify=False,
+                )
+            else:
+                sess = session.Session(
+                    auth=auth,
+                    verify=config_get('config.tls.cacert-path'),
+                )
         except Exception:
             logger.exception('An exception has occurred while trying to build'
                              ' a Session object with auth data'

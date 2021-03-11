@@ -207,8 +207,8 @@ Access it with `ssh -i {key_path} {username}@{ip}`\
     gate = check_output('snapctl', 'get', 'config.network.ext-gateway')
     port = check_output('snapctl', 'get', 'config.network.ports.dashboard')
 
-    print('You can also visit the OpenStack dashboard at http://{}:{}'.format(
-        gate, port))
+    print('You can also visit the OpenStack dashboard at https://{}:{}'.format(
+          gate, port))
 
 
 def main():

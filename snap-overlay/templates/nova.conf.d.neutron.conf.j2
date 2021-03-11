@@ -1,6 +1,6 @@
 [neutron]
-url = http://{{ control_ip }}:9696
-auth_url = http://{{ control_ip }}:5000
+url = https://{{ control_ip }}:9696
+auth_url = https://{{ control_ip }}:5000/v3
 memcached_servers = {{ compute_ip }}:11211
 auth_type = password
 project_domain_name = default
@@ -11,3 +11,4 @@ username = neutron
 password = {{ neutron_password }}
 service_metadata_proxy = True
 metadata_proxy_shared_secret = {{ ovn_metadata_proxy_shared_secret }}
+cafile = {{ tls_cacert_path }}

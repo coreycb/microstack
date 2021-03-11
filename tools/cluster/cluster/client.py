@@ -98,6 +98,19 @@ def join():
     control_ip = response_dict['config']['network']['control-ip']
     shell.config_set(**{'config.network.control-ip': control_ip})
 
+    # Write controller's TLS certificate data to compute node
+    tls_path_map = {
+        'cacert-path': 'tls_cacert',
+        'cert-path': 'tls_cert',
+        'key-path': 'tls_key',
+    }
+    for tls_config, tls_file in tls_path_map.items():
+        tls_path = response_dict['config']['tls'][tls_config]
+        shell.config_set(**{'config.tls.{}'.format(tls_config): tls_path})
+        with open(tls_path, "w") as f:
+            f.write(response_dict[tls_file])
+    shell.config_set(**{'config.tls.generate-self-signed': False})
+
 
 if __name__ == '__main__':
     join()

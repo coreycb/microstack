@@ -27,16 +27,26 @@ VALIDITY_PERIOD = relativedelta(minutes=20)
 def _create_credential():
     project_name = 'service'
     domain_name = 'default'
-    # TODO: add support for TLS-terminated Keystone once this is supported.
     auth = v3.password.Password(
-        auth_url="http://localhost:5000/v3",
+        auth_url="https://localhost:5000/v3",
         username='nova',
         password=config_get('config.credentials.nova-password'),
         user_domain_name=domain_name,
         project_domain_name=domain_name,
         project_name=project_name
     )
-    sess = session.Session(auth=auth)
+    if config_get('config.tls.generate-self-signed'):
+        # TODO(coreycb): Can we verify cert if self-signed certs
+        # include a ca-cert and cert?
+        sess = session.Session(
+            auth=auth,
+            verify=False,
+        )
+    else:
+        sess = session.Session(
+            auth=auth,
+            verify=config_get('config.tls.cacert-path'),
+        )
     keystone_client = client.Client(session=sess)
 
     # Only allow this credential to list the Keystone catalog. After it

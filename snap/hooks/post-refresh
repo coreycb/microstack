@@ -22,7 +22,7 @@ fi
 # Add default ports for mysql, rabbit and dashboard services.
 # [2019-11-21] build 171 (beta) -> master
 if [ -z "$(snapctl get config.network.ports.dashboard)" ]; then
-        snapctl set config.network.ports.dashboard=80
+        snapctl set config.network.ports.dashboard=443
 fi
 
 if [ -z "$(snapctl get config.network.ports.mysql)" ]; then

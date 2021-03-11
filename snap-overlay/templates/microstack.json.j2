@@ -13,12 +13,19 @@
                 "version": 3
             }
         },
-        "auth_url": "http://{{ control_ip }}:5000",
+        "auth_url": "https://{{ control_ip }}:5000/v3",
         "endpoint_type": null,
+{% if tls_generate_self_signed|lower == "false" %}
+        "https_cacert": "{{ tls_cacert_path }}",
+        "https_cert": "{{ tls_cert_path }}",
+        "https_key": "{{ tls_key_path }}",
+        "https_insecure": false,
+{% else %}
         "https_cacert": "",
         "https_cert": "",
-        "https_insecure": false,
         "https_key": "",
+        "https_insecure": true,
+{% endif %}
         "profiler_conn_str": null,
         "profiler_hmac_key": null,
         "region_name": ""

@@ -3,6 +3,7 @@
 state_path = {{ snap_common }}/lib
 # Log to systemd journal
 use_journal = True
+bind_port = 9282
 
 log_file = {{ snap_common }}/log/glance.log
 debug = {{ logging_debug }}

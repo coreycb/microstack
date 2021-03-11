@@ -190,7 +190,7 @@ echo "++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 export HORIZON_IP
 if [[ $PREFIX == *"multipass"* ]]; then
-    echo "Opening $HORIZON_IP:80 up to the outside world."
+    echo "Opening $HORIZON_IP:443 up to the outside world."
     cat<<EOF > /tmp/_10_hosts.py
 # Allow all hosts to connect to this machine
 ALLOWED_HOSTS = ['*',]

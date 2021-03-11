@@ -35,7 +35,7 @@ def _get_default_config():
         'config.network.ext-cidr': '10.20.20.1/24',
         'config.network.security-rules': True,
         'config.network.dashboard-allowed-hosts': '*',
-        'config.network.ports.dashboard': 80,
+        'config.network.ports.dashboard': 443,
         'config.network.ports.mysql': 3306,
         'config.network.ports.rabbit': 5672,
         'config.network.external-bridge-name': 'br-ex',
@@ -75,6 +75,14 @@ def _get_default_config():
         'config.nova.cpu-mode': 'host-model',
         # Do not override cpu-models by default.
         'config.nova.cpu-models': '',
+
+        'config.tls.generate-self-signed': True,
+        'config.tls.cacert-path':
+        f'{snap_common}/etc/ssl/certs/cacert.pem',
+        'config.tls.cert-path':
+        f'{snap_common}/etc/ssl/certs/cert.pem',
+        'config.tls.key-path':
+        f'{snap_common}/etc/ssl/private/key.pem',
     }
 
 

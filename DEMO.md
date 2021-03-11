@@ -158,11 +158,11 @@ Answer the questions as follows:
 
 <table>
   <tr><td>cloud type:</td> <td><code>openstack</code></td></tr>
-  <tr><td>endpoint:</td> <td><code>http://10.20.20.1:5000/v3</code></td></tr>
+  <tr><td>endpoint:</td> <td><code>https://10.20.20.1:5000/v3</code></td></tr>
   <tr><td>cert path:</td> <td><code>none</code></td></tr>
   <tr><td>auth type:</td> <td><code>userpass</code></td></tr>
   <tr><td>region:</td> <td><code>microstack</code></td></tr>
-  <tr><td>region endpoint:</td> <td><code>http://10.20.20.1:5000/v3</code></td></tr>
+  <tr><td>region endpoint:</td> <td><code>https://10.20.20.1:5000/v3</code></td></tr>
   <tr><td>add another region?:</td> <td><code>N</code></td></tr>
 </table>
 
@@ -182,7 +182,7 @@ images in your microstack cloud. Here's how to set that up.
 
 ```
 mkdir simplestreams
-juju metadata generate-image -d ~/simplestreams -i $IMAGE -s bionic -r microstack -u http://10.20.20.1:5000/v3
+juju metadata generate-image -d ~/simplestreams -i $IMAGE -s bionic -r microstack -u https://10.20.20.1:5000/v3
 ```
 
 (If you don't still have an `IMAGE` variable in your env, you can find

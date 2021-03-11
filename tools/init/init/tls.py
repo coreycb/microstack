@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
+
+from init.shell import check
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+import ipaddress
+import socket
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
@@ -15,7 +18,8 @@ from cryptography.x509.oid import NameOID
 from init import shell
 
 
-def generate_selfsigned():
+def generate_self_signed(cert_path, key_path, ip=None,
+                         fingerprint_config=None):
     """Generate a self-signed certificate with associated keys.
 
     The certificate will have a fake CNAME and subjAltName since
@@ -28,26 +32,29 @@ def generate_selfsigned():
     via a secure channel.
     https://owasp.org/www-community/controls/Certificate_and_Public_Key_Pinning
     """
-    cert_path, key_path = (
-        Path(shell.config_get('config.cluster.tls-cert-path')),
-        Path(shell.config_get('config.cluster.tls-key-path')),
-    )
     # Do not generate a new certificate and key if there is already an existing
     # pair. TODO: improve this check and allow renewal.
     if cert_path.exists() and key_path.exists():
         return
 
-    dummy_cn = 'microstack.run'
     key = rsa.generate_private_key(
         public_exponent=65537,
         key_size=2048,
         backend=default_backend(),
     )
+    cn = socket.gethostname()
     common_name = x509.Name([
-        x509.NameAttribute(NameOID.COMMON_NAME, dummy_cn)
+        x509.NameAttribute(NameOID.COMMON_NAME, cn)
     ])
-    san = x509.SubjectAlternativeName([x509.DNSName(dummy_cn)])
+    if ip:
+        san = x509.SubjectAlternativeName(
+            [x509.DNSName(cn), x509.IPAddress(ipaddress.ip_address(ip))]
+        )
+    else:
+        san = x509.SubjectAlternativeName([x509.DNSName(cn)])
+
     basic_contraints = x509.BasicConstraints(ca=True, path_length=0)
+
     now = datetime.utcnow()
     cert = (
         x509.CertificateBuilder()
@@ -63,7 +70,8 @@ def generate_selfsigned():
     )
 
     cert_fprint = cert.fingerprint(hashes.SHA256()).hex()
-    shell.config_set(**{'config.cluster.fingerprint': cert_fprint})
+    if fingerprint_config:
+        shell.config_set(**{fingerprint_config: cert_fprint})
 
     serialized_cert = cert.public_bytes(encoding=serialization.Encoding.PEM)
     serialized_key = key.private_bytes(
@@ -73,3 +81,5 @@ def generate_selfsigned():
     )
     cert_path.write_bytes(serialized_cert)
     key_path.write_bytes(serialized_key)
+    check('chmod', '644', str(cert_path))
+    check('chmod', '600', str(key_path))

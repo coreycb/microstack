@@ -8,7 +8,6 @@ setup:
     - "{snap_common}/etc/neutron/policy.d"
     - "{snap_common}/etc/neutron/rootwrap.d"
     - "{snap_common}/etc/nginx/sites-enabled"
-    - "{snap_common}/etc/nginx/snap/sites-enabled"
     - "{snap_common}/etc/glance/glance.conf.d"
     - "{snap_common}/etc/placement/placement.conf.d"
     - "{snap_common}/etc/horizon/horizon.conf.d"
@@ -22,6 +21,8 @@ setup:
     - "{snap_common}/etc/cluster/tls"
     - "{snap_common}/etc/cluster/uwsgi/snap"
     - "{snap_common}/etc/rabbitmq"
+    - "{snap_common}/etc/ssl/certs"
+    - "{snap_common}/etc/ssl/private"
     - "{snap_common}/fernet-keys"
     - "{snap_common}/lib"
     - "{snap_common}/lib/images"
@@ -33,24 +34,25 @@ setup:
     - "{snap_common}/etc/iscsi"
     - "{snap_common}/etc/target"
   templates:
-    cluster-nginx.conf.j2: "{snap_common}/etc/nginx/snap/sites-enabled/cluster.conf"
-    keystone-nginx.conf.j2: "{snap_common}/etc/nginx/snap/sites-enabled/keystone.conf"
+    cluster-nginx.conf.j2: "{snap_common}/etc/nginx/sites-enabled/cluster.conf"
+    keystone-nginx.conf.j2: "{snap_common}/etc/nginx/sites-enabled/keystone.conf"
     keystone-snap.conf.j2: "{snap_common}/etc/keystone/keystone.conf.d/keystone-snap.conf"
     neutron-snap.conf.j2: "{snap_common}/etc/neutron/neutron.conf.d/neutron-snap.conf"
     nginx.conf.j2: "{snap_common}/etc/nginx/snap/nginx.conf"
     nova-snap.conf.j2: "{snap_common}/etc/nova/nova.conf.d/nova-snap.conf"
-    nova-nginx.conf.j2: "{snap_common}/etc/nginx/snap/sites-enabled/nova.conf"
+    nova-nginx.conf.j2: "{snap_common}/etc/nginx/sites-enabled/nova.conf"
     glance-snap.conf.j2: "{snap_common}/etc/glance/glance.conf.d/glance-snap.conf"
-    placement-nginx.conf.j2: "{snap_common}/etc/nginx/snap/sites-enabled/placement.conf"
+    glance-nginx.conf.j2: "{snap_common}/etc/nginx/sites-enabled/glance.conf"
+    placement-nginx.conf.j2: "{snap_common}/etc/nginx/sites-enabled/placement.conf"
     placement-snap.conf.j2: "{snap_common}/etc/placement/placement.conf.d/placement-snap.conf"
-    cinder-nginx.conf.j2: "{snap_common}/etc/nginx/snap/sites-enabled/cinder.conf"
+    cinder-nginx.conf.j2: "{snap_common}/etc/nginx/sites-enabled/cinder.conf"
     cinder-snap.conf.j2: "{snap_common}/etc/cinder/cinder.conf.d/cinder-snap.conf"
     cinder.database.conf.j2: "{snap_common}/etc/cinder/cinder.conf.d/database.conf"
     cinder.rabbitmq.conf.j2: "{snap_common}/etc/cinder/cinder.conf.d/rabbitmq.conf"
     cinder.keystone.conf.j2: "{snap_common}/etc/cinder/cinder.conf.d/keystone.conf"
     cinder-rootwrap.conf.j2: "{snap_common}/etc/cinder/rootwrap.conf"
     horizon-snap.conf.j2: "{snap_common}/etc/horizon/horizon.conf.d/horizon-snap.conf"
-    horizon-nginx.conf.j2: "{snap_common}/etc/nginx/snap/sites-enabled/horizon.conf"
+    horizon-nginx.conf.j2: "{snap_common}/etc/nginx/sites-enabled/horizon.conf"
     05_snap_tweaks.j2: "{snap_common}/etc/horizon/local_settings.d/_05_snap_tweaks.py"
     libvirtd.conf.j2: "{snap_common}/etc/libvirt/libvirtd.conf"
     qemu.conf.j2: "{snap_common}/etc/libvirt/qemu.conf"
@@ -62,10 +64,12 @@ setup:
     nova.conf.d.keystone.conf.j2: "{snap_common}/etc/nova/nova.conf.d/keystone.conf"
     nova.conf.d.database.conf.j2: "{snap_common}/etc/nova/nova.conf.d/database.conf"
     nova.conf.d.rabbitmq.conf.j2: "{snap_common}/etc/nova/nova.conf.d/rabbitmq.conf"
+    nova.conf.d.cinder.conf.j2: "{snap_common}/etc/nova/nova.conf.d/cinder.conf"
     nova.conf.d.glance.conf.j2: "{snap_common}/etc/nova/nova.conf.d/glance.conf"
     nova.conf.d.neutron.conf.j2: "{snap_common}/etc/nova/nova.conf.d/neutron.conf"
     nova.conf.d.placement.conf.j2: "{snap_common}/etc/nova/nova.conf.d/placement.conf"
     nova.conf.d.console.conf.j2: "{snap_common}/etc/nova/nova.conf.d/console.conf"
+    nova-nginx.conf.j2: "{snap_common}/etc/nginx/sites-enabled/nova.conf"
     keystone.database.conf.j2: "{snap_common}/etc/keystone/keystone.conf.d/database.conf"
     glance.database.conf.j2: "{snap_common}/etc/glance/glance.conf.d/database.conf"
     placement.conf.d.database.conf.j2: "{snap_common}/etc/placement/placement.conf.d/database.conf"
@@ -75,6 +79,7 @@ setup:
     neutron.database.conf.j2: "{snap_common}/etc/neutron/neutron.conf.d/database.conf"
     neutron.conf.d.rabbitmq.conf.j2: "{snap_common}/etc/neutron/neutron.conf.d/rabbitmq.conf"
     neutron_ovn_metadata_agent.ini.j2: "{snap_common}/etc/neutron/neutron_ovn_metadata_agent.ini"
+    neutron-nginx.conf.j2: "{snap_common}/etc/nginx/sites-enabled/neutron.conf"
     rabbitmq.conf.j2: "{snap_common}/etc/rabbitmq/rabbitmq.config"
     iscsid.conf.j2: "{snap_common}/etc/iscsi/iscsid.conf"
     lvm.conf.j2: "{snap_common}/etc/lvm/lvm.conf"
@@ -84,6 +89,9 @@ setup:
     nrpe.cfg.j2: "{snap_common}/etc/nrpe/nrpe-microstack.cfg"
     filebeat.yaml.j2: "{snap_common}/etc/filebeat/filebeat-microstack.yaml"
   chmod:
+    "{snap_common}/etc/ssl": 0755
+    "{snap_common}/etc/ssl/certs": 0755
+    "{snap_common}/etc/ssl/private": 0700
     "{snap_common}/instances": 0755
     "{snap_common}/etc/microstack.rc": 0644
     "{snap_common}/etc/microstack.json": 0644
@@ -124,6 +132,10 @@ setup:
     virt_type: 'config.nova.virt-type'
     cpu_mode: 'config.nova.cpu-mode'
     cpu_models: 'config.nova.cpu-models'
+    tls_generate_self_signed: 'config.tls.generate-self-signed'
+    tls_cacert_path: 'config.tls.cacert-path'
+    tls_cert_path: 'config.tls.cert-path'
+    tls_key_path: 'config.tls.key-path'
 entry_points:
   keystone-manage:
     binary: "{snap}/bin/keystone-manage"

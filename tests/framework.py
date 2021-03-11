@@ -434,7 +434,7 @@ class Framework(unittest.TestCase):
             'microstack',
             'config.credentials.keystone-password'
         ]).decode('utf-8')
-        self.driver.get(f'http://{control_ip}:{dashboard_port}/')
+        self.driver.get(f'https://{control_ip}:{dashboard_port}/')
         # Login to horizon!
         self.driver.find_element(By.ID, "id_username").click()
         self.driver.find_element(By.ID, "id_username").send_keys("admin")

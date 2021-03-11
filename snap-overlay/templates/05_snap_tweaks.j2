@@ -23,7 +23,7 @@ AVAILABLE_THEMES = [
 
 # Point us at keystone.
 OPENSTACK_HOST = "10.20.20.1"
-OPENSTACK_KEYSTONE_URL = "http://%s:5000/v3" % OPENSTACK_HOST
+OPENSTACK_KEYSTONE_URL = "https://%s:5000/v3" % OPENSTACK_HOST
 OPENSTACK_KEYSTONE_DEFAULT_ROLE = "_member_"
 
 # Turn off external access for now.  (This should be turned on once we
@@ -40,4 +40,13 @@ CACHES = {
 }
 SESSION_ENGINE='django.contrib.sessions.backends.cache'
 
-
+# SSL config
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+{% if tls_generate_self_signed|lower == "false" %}
+# TODO(coreycb): Can we verify cert if self-signed certs
+# include a ca-cert and cert?
+OPENSTACK_SSL_CACERT = "{{ tls_cacert_path }}"
+{% else %}
+OPENSTACK_SSL_NO_VERIFY = True
+{% endif %}
