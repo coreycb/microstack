@@ -8,6 +8,18 @@
           label: bionic-brown
     vars:
       tox_envlist: snap
+
+- job:
+    name: microstack-bionic-lvm
+    parent: openstack-tox-snap-with-sudo
+    timeout: 7200
+    nodeset:
+      nodes:
+        - name: bionic-brown
+          label: bionic-brown
+    vars:
+      tox_envlist: snap-lvm
+
 - job:
     name: microstack-focal
     parent: openstack-tox-snap-with-sudo
@@ -19,9 +31,26 @@
     vars:
       tox_envlist: snap
 
+- job:
+    name: microstack-focal-lvm
+    parent: openstack-tox-snap-with-sudo
+    timeout: 7200
+    nodeset:
+      nodes:
+        - name: focal-brown
+          label: focal-brown
+    vars:
+      tox_envlist: snap-lvm
+
 - project:
     check:
       fail-fast: true
       jobs:
         - microstack-bionic
         - microstack-focal
+
+    experimental:
+      fail-fast: true
+      jobs:
+        - microstack-bionic-lvm
+        - microstack-focal-lvm
