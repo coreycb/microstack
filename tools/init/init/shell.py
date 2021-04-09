@@ -159,7 +159,7 @@ def enable(service: str) -> None:
                     e.g. *rabbit*
 
     """
-    check('snapctl', 'start', '--enable', 'microstack.{}'.format(service))
+    check('snapctl', 'start', 'microstack.{}'.format(service), '--enable')
 
 
 def disable(service: str) -> None:
@@ -169,7 +169,7 @@ def disable(service: str) -> None:
                     e.g. *rabbit*
 
     """
-    check('snapctl', 'stop', '--disable', 'microstack.{}'.format(service))
+    check('snapctl', 'stop', 'microstack.{}'.format(service), '--disable')
 
 
 def config_get(*keys):
