@@ -121,12 +121,21 @@ class TestHost:
             '--name', 'snap_generated'])
         self.check_call(['microstack-test.tempest-init'])
 
-    def run_verifications(self):
+    def _create_filtered_test_list(self, source):
+        target = '/tmp/snap.microstack-test/tmp/exclude-volume-tests.txt'
+        cmd = ['sudo', 'sh', '-c',
+               f'sed "/.*volume.*/d" {source} > {target}']
+        self.check_call(cmd)
+        return '/tmp/exclude-volume-tests.txt'
+
+    def run_verifications(self, include_volumes=False):
         """Run a set of verification tests on MicroStack from this host."""
+        test_list = '/snap/microstack-test/current/2020.06-test-list.txt'
+        if not include_volumes:
+            test_list = self._create_filtered_test_list(test_list)
         self.check_call([
             'microstack-test.rally', 'verify', 'start',
-            '--load-list',
-            '/snap/microstack-test/current/2020.06-test-list.txt',
+            '--load-list', f'{test_list}',
             '--detailed', '--concurrency', '2'])
         self.check_call([
             'microstack-test.rally', 'verify', 'report',

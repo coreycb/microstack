@@ -25,7 +25,9 @@ from tests.framework import Framework  # noqa E402
 
 
 class TestBasics(Framework):
+
     snap_try = False
+    use_lvm = False
 
     def test_basics(self):
         """Basic test
@@ -36,12 +38,14 @@ class TestBasics(Framework):
         """
         self._localhost.install_microstack(path='microstack_ussuri_amd64.snap',
                                            snap_try=self.snap_try)
-        self._localhost.init_microstack([
-            '--auto',
-            '--control',
-            '--setup-loop-based-cinder-lvm-backend',
-            '--loop-device-file-size=24'
+        init_args = ['--auto', '--control']
+        if self.use_lvm:
+            init_args.extend([
+                '--setup-loop-based-cinder-lvm-backend',
+                '--loop-device-file-size=24',
             ])
+
+        self._localhost.init_microstack(init_args)
         endpoints = self._localhost.check_output(
             ['/snap/bin/microstack.openstack', 'endpoint', 'list']
         ).decode('utf-8')
@@ -78,7 +82,7 @@ class TestBasics(Framework):
 
         self._localhost.setup_tempest_verifier()
         # Make sure there are no verification failures in the report.
-        failures = self._localhost.run_verifications()
+        failures = self._localhost.run_verifications(self.use_lvm)
         self.assertEqual(failures, 0, 'Verification tests had failure.')
 
         # Try to remove the snap without sudo.
@@ -106,9 +110,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--snap-try", help="Install snap as rw mount from "
                         "squashfs-root directory", action='store_true')
+    parser.add_argument("--use-lvm", help="Init snap with experimental lvm "
+                        "support", action='store_true')
     parser.add_argument('unittest_args', nargs='*')
     args = parser.parse_args()
     TestBasics.snap_try = args.snap_try
+    TestBasics.use_lvm = args.use_lvm
     sys.argv[1:] = args.unittest_args
 
     # Run our tests, ignoring deprecation warnings and warnings about
