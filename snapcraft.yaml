@@ -658,7 +658,6 @@ parts:
   # OpenStack Python Projects, keyed off Keystone
   openstack-projects:
     plugin: python
-    # python-version: python3
     after:
       - uca-sources
       - libvirt
@@ -682,9 +681,11 @@ parts:
       - haproxy
       - libglib2.0-0
       - libmagic1
-      - petname
-      - libsystemd0
       - libpython3.8
+      - libssl-dev
+      - libsystemd0
+      - petname
+      - python3
       - spice-html5
       - sg3-utils
       # LIO userspace dependencies
@@ -1423,9 +1424,6 @@ parts:
       - ${SNAPCRAFT_STAGE}/patches/upper-constraints.txt
     source: tools/init
     stage-packages:
-      # note(dmitriis) in order to avoid conflicts about lib64/ld-linux-x86-64.so.2
-      # with other parts.
-      - libc6
       - rsync
     python-packages:
       - pip==20.0.2
@@ -1454,10 +1452,6 @@ parts:
     constraints:
       - ${SNAPCRAFT_STAGE}/patches/upper-constraints.txt
     source: tools/launch
-    stage-packages:
-      # note(dmitriis) in order to avoid conflicts about lib64/ld-linux-x86-64.so.2
-      # with other parts.
-      - libc6
     python-packages:
       - pip==20.0.2
       - setuptools==44.0.0
@@ -1477,10 +1471,6 @@ parts:
   microstack:
     plugin: python
     source: tools/microstack
-    stage-packages:
-      # note(dmitriis) in order to avoid conflicts about lib64/ld-linux-x86-64.so.2
-      # with other parts.
-      - libc6
     python-packages:
       - pip==20.0.2
       - setuptools==44.0.0
@@ -1505,10 +1495,6 @@ parts:
     constraints:
       - ${SNAPCRAFT_STAGE}/patches/upper-constraints.txt
     source: tools/cluster
-    # note(dmitriis) in order to avoid conflicts about lib64/ld-linux-x86-64.so.2
-    # with other parts.
-    stage-packages:
-      - libc6
     python-packages:
       - pip==20.0.2
       - setuptools==44.0.0
@@ -1534,9 +1520,6 @@ parts:
     organize:
       setup-lvm-loopdev: bin/setup-lvm-loopdev
     stage-packages:
-      # note(dmitriis) in order to avoid conflicts about lib64/ld-linux-x86-64.so.2
-      # with other parts.
-      - libc6
       # fallocate
       - util-linux
       # losetup
