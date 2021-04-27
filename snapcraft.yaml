@@ -409,7 +409,7 @@ apps:
 
   # Libvirt/Qemu
   libvirtd:
-    command: usr/sbin/libvirtd --pid $SNAP_DATA/libvirt.pid
+    command: usr/sbin/libvirtd --pid $SNAP_DATA/libvirt.pid --listen
     daemon: simple
     plugs:
       - network
@@ -686,6 +686,7 @@ parts:
       - libsystemd0
       - petname
       - python3
+      - openssh-client
       - spice-html5
       - sg3-utils
       # LIO userspace dependencies

@@ -128,15 +128,13 @@ class TestCluster(Framework):
 
         # Ping the instance
         ip = None
-        servers = compute_host.check_output([
+        server = compute_host.check_output([
             openstack_cmd,
-            'server', 'list', '--format', 'json'
+            'server', 'show', instance_name, '--format', 'json'
         ]).decode('utf-8')
-        servers = json.loads(servers)
-        for server in servers:
-            if server['Name'] == instance_name:
-                ip = server['Networks'].split(",")[1].strip()
-                break
+        server = json.loads(server)
+        ip = server['addresses'].split(",")[1].strip()
+        start_hypervisor = server['OS-EXT-SRV-ATTR:hypervisor_hostname']
 
         self.assertTrue(ip)
 
@@ -147,6 +145,23 @@ class TestCluster(Framework):
             control_host.check_call(['ping', '-c10', '-w11', ip])
 
         wait_ping()
+
+        # Test live migration of the instance
+        compute_host.check_call([
+            openstack_cmd,
+            'server', 'migrate', '--live-migration', '--block-migration',
+            '--wait', instance_name
+        ])
+        server = compute_host.check_output([
+            openstack_cmd,
+            'server', 'show', instance_name, '--format', 'json'
+        ]).decode('utf-8')
+        server = json.loads(server)
+        end_hypervisor = server['OS-EXT-SRV-ATTR:hypervisor_hostname']
+
+        self.assertNotEqual(start_hypervisor, end_hypervisor,
+                            "Failed migration test. Start hypervisor is the "
+                            "same as end hypervisor")
 
         self.passed = True
 
