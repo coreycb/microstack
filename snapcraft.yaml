@@ -664,7 +664,7 @@ parts:
       - patches
     constraints:
       - ${SNAPCRAFT_STAGE}/patches/upper-constraints.txt
-    source: http://tarballs.openstack.org/keystone/keystone-stable-ussuri.tar.gz
+    source: http://tarballs.opendev.org/openstack/keystone/keystone-stable-ussuri.tar.gz
     build-packages:
       - gcc
       - git
@@ -766,7 +766,7 @@ parts:
   keystone-config:
     after: [openstack-projects]
     plugin: dump
-    source: http://tarballs.openstack.org/keystone/keystone-stable-ussuri.tar.gz
+    source: http://tarballs.opendev.org/openstack/keystone/keystone-stable-ussuri.tar.gz
     organize:
       etc/*.conf: etc/keystone/
       etc/*.ini: etc/keystone/
@@ -796,7 +796,7 @@ parts:
   nova-config:
     after: [openstack-projects]
     plugin: dump
-    source: http://tarballs.openstack.org/nova/nova-stable-ussuri.tar.gz
+    source: http://tarballs.opendev.org/openstack/nova/nova-stable-ussuri.tar.gz
     filesets:
       etc:
         - etc/nova/*
@@ -806,7 +806,7 @@ parts:
   glance-config:
     after: [openstack-projects]
     plugin: dump
-    source: http://tarballs.openstack.org/glance/glance-stable-ussuri.tar.gz
+    source: http://tarballs.opendev.org/openstack/glance/glance-stable-ussuri.tar.gz
     organize:
       etc/*.conf: etc/glance/
       etc/*.ini: etc/glance/
@@ -820,7 +820,7 @@ parts:
   placement-config:
     after: [openstack-projects]
     plugin: dump
-    source: http://tarballs.openstack.org/placement/placement-stable-ussuri.tar.gz
+    source: http://tarballs.opendev.org/openstack/placement/placement-stable-ussuri.tar.gz
     organize:
       etc/*.conf: etc/placement/
       etc/*.ini: etc/placement/
@@ -834,7 +834,7 @@ parts:
   cinder-config:
     after: [openstack-projects]
     plugin: dump
-    source: http://tarballs.openstack.org/cinder/cinder-stable-ussuri.tar.gz
+    source: http://tarballs.opendev.org/openstack/cinder/cinder-stable-ussuri.tar.gz
     organize:
       etc/*.conf: etc/cinder/
       etc/*.ini: etc/cinder/
@@ -849,7 +849,7 @@ parts:
   horizon-config:
     after: [openstack-projects]
     plugin: dump
-    source: http://tarballs.openstack.org/horizon/horizon-stable-ussuri.tar.gz
+    source: http://tarballs.opendev.org/openstack/horizon/horizon-stable-ussuri.tar.gz
     organize:
       etc/*.conf: etc/horizon/
     filesets:
