@@ -30,9 +30,9 @@ juju and kubectl snaps, which will give us tools to deploy and manage
 kubernetes, respectively.
 
 ```
-sudo snap install --classic --beta microstack
-sudo snap install --classic juju
-sudo snap install --classic kubectl
+sudo snap install microstack --beta --devmode
+sudo snap install juju --classic
+sudo snap install kubectl --classic
 ```
 
 To make sure that you can use the snaps we've installed, add /snap/bin
