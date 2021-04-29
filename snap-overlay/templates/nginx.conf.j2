@@ -16,6 +16,12 @@ http {
         tcp_nodelay on;
         keepalive_timeout 65;
         types_hash_max_size 2048;
+        # Disabled for glance image uploads. The maximum size will be
+        # determined by glance settings.
+        # TODO(wolsen): should the scope be narrowed to horizon/glance?
+        client_max_body_size 0;
+        proxy_buffering off;
+        proxy_request_buffering off;
 
         include {{ snap }}/usr/conf/mime.types;
         default_type application/octet-stream;
