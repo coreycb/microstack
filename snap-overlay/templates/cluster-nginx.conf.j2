@@ -1,7 +1,11 @@
 server {
     listen 10002 ssl;
-    error_log syslog:server=unix:/dev/log;
-    access_log syslog:server=unix:/dev/log;
+{% if logging_debug|lower == "true" %}
+    error_log {{ snap_common }}/log/nginx-error.log debug;
+{% else %}
+    error_log {{ snap_common }}/log/nginx-error.log;
+{% endif %}
+    access_log {{ snap_common }}/log/nginx-access.log;
 {% if is_clustered %}
     ssl_session_timeout 1d;
     ssl_session_tickets off;
