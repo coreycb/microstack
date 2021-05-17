@@ -46,6 +46,7 @@ def generate_self_signed(cert_path, key_path, ip=None,
     common_name = x509.Name([
         x509.NameAttribute(NameOID.COMMON_NAME, cn)
     ])
+    # This needs to be smarter in case localhost has a hostname
     if ip:
         san = x509.SubjectAlternativeName(
             [x509.DNSName(cn), x509.IPAddress(ipaddress.ip_address(ip))]

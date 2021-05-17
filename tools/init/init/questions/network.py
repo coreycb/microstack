@@ -29,8 +29,8 @@ class ExtGateway(Question):
             ip_dict = config_get(*['config.network.control-ip',
                                    'config.network.compute-ip'])
             _env.update({
-                'control_ip': ip_dict['config.network.control-ip'],
-                'compute_ip': ip_dict['config.network.compute-ip'],
+                'control_ip': 'coreycbryant.com',
+                'compute_ip': 'coreycbryant.com',
             })
 
 

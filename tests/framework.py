@@ -424,6 +424,7 @@ class Framework(unittest.TestCase):
         control_ip = test_host.check_output([
             'sudo', 'snap', 'get', 'microstack', 'config.network.control-ip',
         ]).decode('utf-8')
+        control_ip = "coreycbryant.com"
         logger.debug('Verifying GUI for (IP: {})'.format(control_ip))
         dashboard_port = test_host.check_output([
             'sudo', 'snap', 'get',

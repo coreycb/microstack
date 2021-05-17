@@ -53,6 +53,7 @@ class TestBasics(Framework):
         control_ip = self._localhost.check_output(
             ['sudo', 'snap', 'get', 'microstack', 'config.network.control-ip'],
         ).decode('utf-8')
+        control_ip = "coreycbryant.com"
 
         # Endpoints should contain the control IP.
         self.assertTrue(control_ip in endpoints)

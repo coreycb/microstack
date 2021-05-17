@@ -50,6 +50,7 @@ class TestCluster(Framework):
         # there is something wrong and we should fail the test and reassess.
         self.assertEqual(len(ifaddrs), 1)
         control_ip = ifaddrs[0]['addr']
+        control_ip = "coreycbryant.com"
 
         control_host.init_microstack(['--auto', '--control',
                                       f'--default-source-ip={control_ip}'])

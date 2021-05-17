@@ -1,5 +1,6 @@
 server {
     listen 9696 ssl;
+    server_name coreycbryant.com;
     ssl_certificate {{ tls_cert_path }};
     ssl_certificate_key {{ tls_key_path }};
     ssl_protocols TLSv1.2 TLSv1.3;

@@ -201,22 +201,19 @@ class NetworkSettings(Question):
         network.ExtGateway().ask()
         network.ExtCidr().ask()
 
-        control_ip = check_output('snapctl', 'get',
-                                  'config.network.control-ip')
         if role == 'control':
             nb_conn = 'unix:{SNAP_COMMON}/run/ovn/ovnnb_db.sock'.format(**_env)
             sb_conn = 'unix:{SNAP_COMMON}/run/ovn/ovnsb_db.sock'.format(**_env)
             check_output('ovs-vsctl', 'set', 'open', '.',
-                         f'external-ids:ovn-encap-ip={control_ip}')
+                         f'external-ids:ovn-encap-ip=coreycbryant.com')
         elif role == 'compute':
-            sb_conn = f'tcp:{control_ip}:6642'
+            sb_conn = f'tcp:coreycbryant.com:6642'
             # Not used by any compute node services.
             nb_conn = ''
-            compute_ip = check_output('snapctl', 'get',
-                                      'config.network.compute-ip')
+            compute_ip = 'coreycbryant.com'
             # Set the IP address to be used for a tunnel endpoint.
             check_output('ovs-vsctl', 'set', 'open', '.',
-                         f'external-ids:ovn-encap-ip={compute_ip}')
+                         f'external-ids:ovn-encap-ip=coreycbryant.com')
         else:
             raise Exception(f'Unexpected node role: {role}')
 
@@ -312,7 +309,7 @@ class TlsCertificates(Question):
                 Path(shell.config_get('config.tls.key-path')),
             )
             tls.generate_self_signed(cert_path, key_path,
-                                     ip=_env['control_ip'])
+                                     ip='coreycbryant.com')
             copyfile(Path(shell.config_get('config.tls.cert-path')),
                      Path(shell.config_get('config.tls.cacert-path')))
             restart('nginx')
@@ -337,7 +334,7 @@ class RabbitMq(Question):
         enable('rabbitmq-server')
         rabbit_port = check_output(
             'snapctl', 'get', 'config.network.ports.rabbit')
-        nc_wait(_env['control_ip'], rabbit_port)
+        nc_wait('coreycbryant.com', rabbit_port)
         log_file = '{SNAP_COMMON}/log/rabbitmq/startup_log'.format(**_env)
         log_wait(log_file, 'completed')
 
@@ -372,7 +369,7 @@ class DatabaseSetup(Question):
         enable('mysqld')
         mysql_port = check_output(
             'snapctl', 'get', 'config.network.ports.mysql')
-        nc_wait(_env['control_ip'], mysql_port)
+        nc_wait('coreycbryant.com', mysql_port)
         log_wait('{SNAP_COMMON}/log/mysql/error.log'.format(**_env),
                  'mysqld: ready for connections.')
 
@@ -401,7 +398,8 @@ class DatabaseSetup(Question):
         if call('openstack', 'user', 'show', 'admin'):
             return
 
-        bootstrap_url = 'https://{control_ip}:5000/v3/'.format(**_env)
+        bootstrap_url = 'https://coreycbryant.com:5000/v3/'.format(**_env)
+        #bootstrap_url = 'http://coreycbryant.com:5000/v3/'.format(**_env)
 
         check('snap-openstack', 'launch', 'keystone-manage', 'bootstrap',
               '--bootstrap-password', _env['keystone_password'],
@@ -575,7 +573,8 @@ class PlacementSetup(Question):
             for endpoint in ['public', 'internal', 'admin']:
                 call('openstack', 'endpoint', 'create', '--region',
                      'microstack', 'placement', endpoint,
-                     'https://{control_ip}:8778'.format(**_env))
+                     'https://coreycbryant.com:8778'.format(**_env))
+                     #'http://coreycbryant.com:8778'.format(**_env))
 
         log.info('Running Placement DB migrations...')
         check('snap-openstack', 'launch', 'placement-manage', 'db', 'sync')
@@ -660,7 +659,8 @@ class NovaControlPlane(Question):
         ]:
             enable(service)
 
-        nc_wait(_env['compute_ip'], '8774')
+        #nc_wait(_env['compute_ip'], '8774')
+        nc_wait('coreycbryant.com', '8774')
 
         sleep(5)  # TODO: log_wait
 
@@ -670,7 +670,8 @@ class NovaControlPlane(Question):
             for endpoint in ['public', 'internal', 'admin']:
                 call('openstack', 'endpoint', 'create', '--region',
                      'microstack', 'compute', endpoint,
-                     'https://{control_ip}:8774/v2.1'.format(**_env))
+                     'https://coreycbryant.com:8774/v2.1'.format(**_env))
+                     #'http://coreycbryant.com:8774/v2.1'.format(**_env))
 
         log.info('Creating default flavors...')
 
@@ -706,7 +707,6 @@ class CinderSetup(Question):
             check('openstack', 'role', 'add', '--project', 'service',
                   '--user', 'cinder', 'admin')
 
-        control_ip = _env['control_ip']
         for endpoint in ['public', 'internal', 'admin']:
             for api_version in ['v2', 'v3']:
                 if not call('openstack', 'service', 'show',
@@ -722,7 +722,7 @@ class CinderSetup(Question):
                     check(
                             'openstack', 'endpoint', 'create', '--region',
                             'microstack', f'volume{api_version}', endpoint,
-                            f'https://{control_ip}:8776/{api_version}/'
+                            f'https://coreycbryant.com:8776/{api_version}/'
                             '$(project_id)s'
                     )
         log.info('Running Cinder DB migrations...')
@@ -794,7 +794,7 @@ class NeutronControlPlane(Question):
             for endpoint in ['public', 'internal', 'admin']:
                 call('openstack', 'endpoint', 'create', '--region',
                      'microstack', 'network', endpoint,
-                     'https://{control_ip}:9696'.format(**_env))
+                     'https://coreycbryant.com:9696'.format(**_env))
 
         check('snap-openstack', 'launch', 'neutron-db-manage', 'upgrade',
               'head')
@@ -802,7 +802,7 @@ class NeutronControlPlane(Question):
         enable('neutron-ovn-metadata-agent')
         restart('nginx')
 
-        nc_wait(_env['control_ip'], '9696')
+        nc_wait('coreycbryant.com', '9696')
 
         sleep(5)  # TODO: log_wait
 
@@ -905,13 +905,13 @@ class GlanceSetup(Question):
             for endpoint in ['internal', 'admin', 'public']:
                 check('openstack', 'endpoint', 'create', '--region',
                       'microstack', 'image', endpoint,
-                      'https://{compute_ip}:9292'.format(**_env))
+                      'https://coreycbryant.com:9292'.format(**_env))
 
         check('snap-openstack', 'launch', 'glance-manage', 'db_sync')
         enable('glance-api')
         restart('nginx')
 
-        nc_wait(_env['compute_ip'], '9292')
+        nc_wait('coreycbryant.com', '9292')
 
         sleep(5)  # TODO: log_wait
 

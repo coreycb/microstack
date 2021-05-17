@@ -95,7 +95,8 @@ def join():
     shell.config_set(**control_creds)
     # TODO: use the hostname from the connection string instead to
     # resolve an IP address (requires a valid DNS setup).
-    control_ip = response_dict['config']['network']['control-ip']
+    #control_ip = response_dict['config']['network']['control-ip']
+    control_ip = "coreycbryant.com"
     shell.config_set(**{'config.network.control-ip': control_ip})
 
     # Write controller's TLS certificate data to compute node
